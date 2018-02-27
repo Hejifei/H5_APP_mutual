@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            background: #111;
+            color: whitesmoke;
+        }
+        h3 {
+            text-align: center;
+            color: orange;
+        }
+        a{cursor: pointer;}
+    </style>
+</head>
+<body>
+    <div>
+        <h3>Android</h3>
+        <ul>
+            <li><a onclick="webview_close_android()">关闭WEBVIEW</a></li>
+            <li><a onclick="share_android()">分享</a></li>
+            <li><a onclick="webtonative_login_android()">跳转登录</a></li>
+            <li><a></a></li>
+            <li><a></a></li>
+            <li><a></a></li>
+            <li><a></a></li>            
+        </ul>
+    </div>
+    <div>
+        <h3>IOS</h3>
+        <ul>
+            <li><a onclick="webview_close_ios()">关闭WEBVIEW</a></li>
+            <li><a onclick="share_ios()">分享</a></li>
+            <li><a onclick="webtonative_login_ios()"></a>跳转原生界面</li>
+            <li><a></a></li>
+            <li><a></a></li>
+            <li><a></a></li>
+            <li><a></a></li>      
+        </ul>
+    </div>
+    <script src="jquery.js"></script>
+    <script>
+        //关闭webview
+        function webview_close_android(){
+            window.ltjf.close(1,'msg','ret');
+        }
+        function webview_close_ios(){
+            window.webkit.messageHandlers.close.postMessage({ret:ret,code:code,msg:msg});
+        }
+
+        // 分享
+        function share_android(){
+            // 调用app内部方法
+            window.ltjf.share('测试分享的标题','测试分享的内容','https://cdn.litongjinfu.com/public/icon/defaultavatar.png','https://www.litongjinfu.com');
+        }
+        function share_ios(){
+            window.webkit.messageHandlers.share.postMessage({title:'测试分享的标题',content:'测试分享的内容',image:'https://cdn.litongjinfu.com/public/icon/defaultavatar.png', url:'https://www.litongjinfu.com '}); 
+        }
+
+        var u = navigator.userAgent, app = navigator.appVersion;
+        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Linux') > -1; //g
+        var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+        // 跳转原生界面
+        function webtonative_login_android(){
+            if (isAndroid) {
+                //内部跳转
+                try{
+                    //依次提交target，content 两个参数，content可为空                
+                    window.ltjf.postMessage(4, '') 
+                }catch(error){
+                }
+                //外部跳转
+                try{
+                    // 判定是否是chrome浏览器
+                    var target = 1;
+                    var content = 'url='+encodeURIComponent('http://139.224.135.24/')+'&title='+'myweb';
+                    if(navigator.userAgent.indexOf("Chrome") > -1){
+                        // alert('chrome')
+                        // chrome浏览器：
+                        var loadUrl = 'intent://platformapi/startapp?target=' + target + '&'+ content +'#Intent;package=com.litongjinfu.tskj.ltjfzzb;scheme=ltjf;end' ;
+                    }else{
+                        // alert('nochrome')
+                        // 其他浏览器：                      
+                        var loadUrl = 'ltjf://platformapi/startapp?target=' + target + '&' + content;
+                    }
+                    window.location = loadUrl;
+                }catch(error){
+                }
+            }
+            if (isIOS) {
+                alert('isIOS')
+                //内部跳转
+                try{
+                    window.webkit.messageHandlers.internalLinkJump.postMessage({target: 4, content: ''})
+                }catch(error){
+                }
+                //外部跳转
+                try{
+                    var target = 1;
+                    var content = 'url='+encodeURIComponent('http://139.224.135.24/')+'&title='+'myweb';
+                    loadUrl = 'litongjinfu://'+ target +'?'+ content;
+                    window.location = loadUrl
+                }catch(error){
+                }
+            }
+        }
+        function webtonative_login_ios(){
+            // 跳转登录界面
+            // window.webkit.messageHandlers.login.postMessage(null);
+            // 跳转注册界面
+            // window.webkit.messageHandlers.register.postMessage(null)
+        }
+    </script>
+</body>
+</html>
